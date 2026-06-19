@@ -1,25 +1,20 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
-import Navbar from './components/Navbar'
-import Hero from './components/Hero'
-import Categories from './components/Categories'
-import Products from './components/Products'
-import Offers from './components/Offers'
-import Reviews from './components/Reviews'
-import Brands from './components/Brands'
-import Footer from './components/Footer'
+import Home from './pages/Home'
+import WeddingCollectionPage from './pages/WeddingCollectionPage'
+import ProductDetails from './pages/ProductDetails'
+import ContactUs from './pages/ContactUs'
 
 function App() {
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <Hero />
-      <Categories />
-      <Products />
-      <Offers />
-      <Reviews />
-      <Brands />
-      <Footer />
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/collections/wedding" element={<WeddingCollectionPage />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
+        <Route path="/contact" element={<ContactUs />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
 

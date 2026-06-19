@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const products = [
   {
@@ -147,7 +148,7 @@ export default function Products() {
         {/* Product Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 lg:gap-6">
           {filtered.map((product) => (
-            <div key={product.id} className="group bg-white relative flex flex-col">
+            <Link to={`/product/${product.id}`} key={product.id} className="group bg-white relative flex flex-col block">
               {/* Image */}
               <div className="relative overflow-hidden" style={{ aspectRatio: "3/4" }}>
                 <img
@@ -196,7 +197,7 @@ export default function Products() {
                   )}
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
