@@ -6,7 +6,7 @@ const categories = [
     count: "142 pieces",
   },
   {
-    title: "Necklaces",
+    title: "Necklacess",
     subtitle: "Pendants & Chains",
     image: "https://images.unsplash.com/photo-1599643477877-530eb83abc8e?w=600&auto=format&fit=crop&q=80",
     count: "98 pieces",
