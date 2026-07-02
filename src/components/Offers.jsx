@@ -1,7 +1,33 @@
 import { useState, useEffect } from "react";
+import { supabase } from "../supabaseClient";
 
 export default function Offers() {
   const [timeLeft, setTimeLeft] = useState({ h: 11, m: 47, s: 23 });
+  const [offers, setOffers] = useState([]);
+  const [features, setFeatures] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [
+        { data: offersData },
+        { data: featuresData }
+      ] = await Promise.all([
+        supabase.from("offers").select("*").order("id"),
+        supabase.from("features").select("*").order("id")
+      ]);
+
+      if (offersData) setOffers(offersData);
+      if (featuresData) setFeatures(featuresData);
+    };
+
+    fetchData();
+    const handleAdminChange = (event) => {
+      if (["offers", "features"].includes(event.detail?.table)) fetchData();
+    };
+
+    window.addEventListener("admin-data-changed", handleAdminChange);
+    return () => window.removeEventListener("admin-data-changed", handleAdminChange);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -69,12 +95,7 @@ export default function Offers() {
 
           {/* Right — Offer cards */}
           <div className="grid grid-cols-2 gap-4">
-            {[
-              { title: "Solitaire Rings", off: "25% OFF", img: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&auto=format&fit=crop&q=80" },
-              { title: "Diamond Drops", off: "30% OFF", img: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400&auto=format&fit=crop&q=80" },
-              { title: "Eternity Bands", off: "20% OFF", img: "https://images.unsplash.com/photo-1573408301185-9519f94816b5?w=400&auto=format&fit=crop&q=80" },
-              { title: "Tennis Bracelets", off: "15% OFF", img: "https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&auto=format&fit=crop&q=80" },
-            ].map((c) => (
+            {offers.map((c) => (
               <div key={c.title} className="group relative overflow-hidden cursor-pointer" style={{ aspectRatio: "1" }}>
                 <img src={c.img} alt={c.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-obsidian/80 to-obsidian/20" />
@@ -91,12 +112,7 @@ export default function Offers() {
       {/* Feature strip */}
       <div className="bg-gold py-6 px-6">
         <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          {[
-            { icon: "🚚", label: "Free Shipping", sub: "Orders above ₹50,000" },
-            { icon: "🔒", label: "Secure Payment", sub: "100% Protected" },
-            { icon: "💎", label: "Certified Gems", sub: "GIA & IGI Certified" },
-            { icon: "↩️", label: "30-Day Returns", sub: "Hassle-free policy" },
-          ].map((f) => (
+          {features.map((f) => (
             <div key={f.label} className="flex flex-col items-center gap-1">
               <span className="text-xl">{f.icon}</span>
               <span className="text-[10px] tracking-widest uppercase font-body font-semibold text-obsidian">{f.label}</span>

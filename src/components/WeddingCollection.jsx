@@ -7,152 +7,17 @@ import necklaceDiamond from "../assets/necklace_diamond.png";
 import earringsBridal  from "../assets/earrings_bridal.png";
 import braceletDiamond from "../assets/bracelet_diamond.png";
 
-/* ─── Data ──────────────────────────────────────────────────── */
-const TABS = [
-  { id: "engagement", label: "Engagement Rings", count: 3 },
-  { id: "bands",      label: "Wedding Bands",    count: 3 },
-  { id: "luxury",     label: "Luxury Jewelry",   count: 3 },
-];
+import { useEffect } from "react";
+import { supabase } from "../supabaseClient";
 
-const PRODUCTS = {
-  engagement: [
-    {
-      id: 1,
-      name: "Eternal Solitaire",
-      sub: "Platinum · 2.0 ct Diamond",
-      price: "₹3,45,000", orig: "₹3,99,000",
-      badge: "Bestseller", rating: 5, reviews: 214,
-      image: ringSolitaire,
-      metal: "Platinum", carats: "2.0 ct",
-    },
-    {
-      id: 2,
-      name: "Celeste Halo",
-      sub: "18K Gold · Emerald Cut",
-      price: "₹2,85,000", orig: null,
-      badge: "Exclusive", rating: 5, reviews: 167,
-      image: ringEmerald,
-      metal: "18K Yellow Gold", carats: "1.8 ct",
-    },
-    {
-      id: 3,
-      name: "Aurora Cluster",
-      sub: "Platinum · Multi-Stone",
-      price: "₹1,95,000", orig: "₹2,25,000",
-      badge: "Sale", rating: 4, reviews: 43,
-      image: "https://images.unsplash.com/photo-1602751584552-8ba73aad10e1?w=600&auto=format&fit=crop&q=80",
-      metal: "Platinum", carats: "2.2 ct tw",
-    },
-  ],
-  bands: [
-    {
-      id: 4,
-      name: "Rose Eternity Band",
-      sub: "18K Rose Gold · Full Pavé",
-      price: "₹1,65,000", orig: "₹1,95,000",
-      badge: "Sale", rating: 5, reviews: 189,
-      image: ringEternity,
-      metal: "18K Rose Gold", carats: "1.2 ct tw",
-    },
-    {
-      id: 5,
-      name: "Marquise Pavé Band",
-      sub: "18K Yellow Gold · Pavé Set",
-      price: "₹98,000", orig: null,
-      badge: "New", rating: 5, reviews: 55,
-      image: "https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=600&auto=format&fit=crop&q=80",
-      metal: "18K Yellow Gold", carats: "0.8 ct tw",
-    },
-    {
-      id: 6,
-      name: "Whisper Platinum",
-      sub: "Platinum · Comfort Fit",
-      price: "₹75,000", orig: null,
-      badge: "New", rating: 4, reviews: 32,
-      image: "https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=600&auto=format&fit=crop&q=80",
-      metal: "Platinum", carats: "0.5 ct tw",
-    },
-  ],
-  luxury: [
-    {
-      id: 7,
-      name: "Lumière Cascade",
-      sub: "Diamond & Pearl Necklace",
-      price: "₹4,20,000", orig: null,
-      badge: "New", rating: 5, reviews: 92,
-      image: necklaceDiamond,
-      metal: "18K White Gold", carats: "3.5 ct tw",
-    },
-    {
-      id: 8,
-      name: "Twilight Drop Earrings",
-      sub: "Sapphire Bridal Earrings",
-      price: "₹1,12,000", orig: "₹1,35,000",
-      badge: "Sale", rating: 4, reviews: 78,
-      image: earringsBridal,
-      metal: "Platinum", carats: "1.4 ct tw",
-    },
-    {
-      id: 9,
-      name: "Infinity Tennis",
-      sub: "Diamond Tennis Bracelet",
-      price: "₹2,48,000", orig: null,
-      badge: "Bestseller", rating: 5, reviews: 134,
-      image: braceletDiamond,
-      metal: "18K White Gold", carats: "5.0 ct tw",
-    },
-  ],
+const imageMap = {
+  "ring_solitaire.png": ringSolitaire,
+  "ring_eternity.png": ringEternity,
+  "ring_emerald.png": ringEmerald,
+  "necklace_diamond.png": necklaceDiamond,
+  "earrings_bridal.png": earringsBridal,
+  "bracelet_diamond.png": braceletDiamond
 };
-
-const BADGE_CLS = {
-  Bestseller: "bg-gold text-obsidian",
-  New:        "bg-obsidian text-ivory",
-  Sale:       "bg-red-900 text-ivory",
-  Exclusive:  "bg-gold-dark text-ivory",
-};
-
-const PROMISES = [
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.2} className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-    ),
-    title: "GIA Certified",
-    desc:  "Every diamond is independently certified — guaranteeing cut, clarity, colour and carat.",
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.2} className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-      </svg>
-    ),
-    title: "Lifetime Care",
-    desc:  "Free polishing, resizing and inspection for the lifetime of every piece you own.",
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.2} className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
-      </svg>
-    ),
-    title: "Free Engraving",
-    desc:  "Add a secret date, name or message — hand-engraved at no extra charge.",
-  },
-  {
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.2} className="w-8 h-8">
-        <path strokeLinecap="round" strokeLinejoin="round"
-          d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
-      </svg>
-    ),
-    title: "White Glove Delivery",
-    desc:  "Delivered in our signature velvet box with tracked, insured and discreet shipping.",
-  },
-];
 
 /* ─── ProductCard ───────────────────────────────────────────── */
 function ProductCard({ product, wishlisted, onWishlist }) {
@@ -302,10 +167,64 @@ function PromiseCard({ icon, title, desc }) {
   );
 }
 
+const BADGE_CLS = {
+  Bestseller: "bg-gold text-obsidian",
+  New:        "bg-obsidian text-ivory",
+  Sale:       "bg-red-900 text-ivory",
+  Exclusive:  "bg-gold-dark text-ivory",
+};
+
 /* ─── Main Component ────────────────────────────────────────── */
 export default function WeddingCollection() {
   const [activeTab, setActiveTab] = useState("engagement");
   const [wishlist,  setWishlist]  = useState([]);
+  const [tabs, setTabs] = useState([]);
+  const [productsGrouped, setProductsGrouped] = useState({ engagement: [], bands: [], luxury: [] });
+  const [promises, setPromises] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [
+        { data: tabsData },
+        { data: productsData },
+        { data: promisesData }
+      ] = await Promise.all([
+        supabase.from("wedding_tabs").select("*"),
+        supabase.from("wedding_products").select("*").order("id"),
+        supabase.from("wedding_promises").select("*").order("id")
+      ]);
+
+      if (tabsData) setTabs(tabsData);
+      if (promisesData) setPromises(promisesData);
+      if (productsData) {
+        const grouped = (tabsData || []).reduce((acc, tab) => {
+          acc[tab.id] = [];
+          return acc;
+        }, {});
+        productsData.forEach(p => {
+          if (grouped[p.tab_id]) {
+            grouped[p.tab_id].push(p);
+          }
+        });
+        setProductsGrouped(grouped);
+        if (tabsData?.length) {
+          setActiveTab((currentTab) =>
+            tabsData.some((tab) => tab.id === currentTab) ? currentTab : tabsData[0].id
+          );
+        }
+      }
+    };
+
+    fetchData();
+    const handleAdminChange = (event) => {
+      if (["wedding_tabs", "wedding_products", "wedding_promises"].includes(event.detail?.table)) {
+        fetchData();
+      }
+    };
+
+    window.addEventListener("admin-data-changed", handleAdminChange);
+    return () => window.removeEventListener("admin-data-changed", handleAdminChange);
+  }, []);
 
   const toggleWish = (id) =>
     setWishlist((prev) =>
@@ -429,7 +348,7 @@ export default function WeddingCollection() {
 
           {/* Tab bar */}
           <div className="flex flex-wrap justify-center gap-3 mb-14">
-            {TABS.map((tab) => (
+            {tabs.map((tab) => (
               <button
                 key={tab.id}
                 id={`tab-${tab.id}`}
@@ -452,10 +371,13 @@ export default function WeddingCollection() {
 
           {/* Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {PRODUCTS[activeTab].map((product) => (
+            {(productsGrouped[activeTab] || []).map((product) => (
               <ProductCard
                 key={product.id}
-                product={product}
+                product={{
+                  ...product,
+                  image: product.image.startsWith("http") ? product.image : imageMap[product.image]
+                }}
                 wishlisted={wishlist.includes(product.id)}
                 onWishlist={toggleWish}
               />
@@ -539,8 +461,17 @@ export default function WeddingCollection() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {PROMISES.map((p) => (
-              <PromiseCard key={p.title} {...p} />
+            {promises.map((p) => (
+              <PromiseCard 
+                key={p.title} 
+                title={p.title}
+                desc={p.desc_text}
+                icon={
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.2} className="w-8 h-8">
+                    <path strokeLinecap="round" strokeLinejoin="round" d={p.icon_path} />
+                  </svg>
+                }
+              />
             ))}
           </div>
         </div>

@@ -1,4 +1,7 @@
-const categories = [
+import { useEffect, useState } from "react";
+import { supabase } from "../supabaseClient";
+
+const fallbackCategories = [
   {
     title: "Rings",
     subtitle: "Solitaire & Bands",
@@ -26,6 +29,25 @@ const categories = [
 ];
 
 export default function Categories() {
+  const [categories, setCategories] = useState(fallbackCategories);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data, error } = await supabase.from("categories").select("*").order("id");
+      if (!error && data?.length) {
+        setCategories(data);
+      }
+    };
+
+    fetchCategories();
+    const handleAdminChange = (event) => {
+      if (event.detail?.table === "categories") fetchCategories();
+    };
+
+    window.addEventListener("admin-data-changed", handleAdminChange);
+    return () => window.removeEventListener("admin-data-changed", handleAdminChange);
+  }, []);
+
   return (
     <section className="bg-ivory py-24 px-6">
       <div className="max-w-7xl mx-auto">
