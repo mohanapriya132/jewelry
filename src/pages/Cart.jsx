@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 import { useProducts } from "../context/ProductContext";
@@ -6,10 +7,12 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import PageHeader from "../components/common/PageHeader";
 import EmptyState from "../components/common/EmptyState";
+import { initializePayment } from "../utils/paymentService";
 
 export default function Cart() {
-  const { cart, removeFromCart, updateCartQuantity, toggleWishlist } = useShop();
+  const { cart, removeFromCart, updateCartQuantity, toggleWishlist, clearCart } = useShop();
   const { products } = useProducts();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const cartItems = cart
     .map((cartItem) => {
@@ -26,6 +29,25 @@ export default function Cart() {
   const tax = subtotal * 0.05;
   const shipping = subtotal > 0 ? 500 : 0;
   const total = subtotal + tax + shipping;
+
+  const handleCheckout = () => {
+    setIsProcessing(true);
+    initializePayment({
+      amount: total,
+      currency: "INR", // Adjust based on your currency
+      onSuccess: (data) => {
+        setIsProcessing(false);
+        console.log("Payment Success:", data);
+        alert("Payment Successful! Your order has been placed.");
+        // clearCart(); // Implement clearCart in your context if you want to clear on success
+      },
+      onFailure: (error) => {
+        setIsProcessing(false);
+        console.error("Payment Error:", error);
+        alert("Payment Failed: " + (error.description || error.message || "Unknown error"));
+      }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-mist flex flex-col">
@@ -162,15 +184,21 @@ export default function Cart() {
                   </span>
                 </div>
 
-                <button className="w-full bg-obsidian text-ivory text-xs tracking-widest uppercase py-4 hover:bg-gold hover:text-obsidian transition-colors font-body font-medium flex items-center justify-center gap-2 group">
-                  Proceed to Checkout
-                  <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                  </svg>
+                <button 
+                  onClick={handleCheckout}
+                  disabled={isProcessing}
+                  className="w-full bg-obsidian text-ivory text-xs tracking-widest uppercase py-4 hover:bg-gold hover:text-obsidian transition-colors font-body font-medium flex items-center justify-center gap-2 group disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isProcessing ? "Processing..." : "Pay Now"}
+                  {!isProcessing && (
+                    <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  )}
                 </button>
 
                 <p className="text-center text-[10px] text-slate/50 mt-4 uppercase tracking-widest font-body">
-                  Secure Checkout
+                  Secure Checkout via Razorpay
                 </p>
               </div>
             </div>

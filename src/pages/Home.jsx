@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import Navbar from '../components/Navbar'
 import Hero from '../components/Hero'
 import Categories from '../components/Categories'
@@ -9,44 +9,29 @@ import Brands from '../components/Brands'
 import Footer from '../components/Footer'
 
 export default function Home() {
-  const [backendMessage, setBackendMessage] = useState('')
-  const [connectionStatus, setConnectionStatus] = useState('loading') // 'loading', 'success', 'error'
-
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/api/test`)
       .then((res) => {
-        if (!res.ok) throw new Error('Network response was not ok')
+        if (!res.ok) throw new Error(`Network response was not ok (status: ${res.status})`)
         return res.json()
       })
       .then((data) => {
-        setBackendMessage(data.message)
-        setConnectionStatus('success')
+        console.log('✅ Backend Connected Successfully')
+        console.log('Backend Response:', data.message || data)
       })
       .catch((err) => {
-        console.error("Error fetching backend:", err)
-        setConnectionStatus('error')
+        console.error('❌ Backend Connection Failed')
+        console.error(err)
+        console.warn('Troubleshooting suggestions:')
+        console.warn('- Check if VITE_API_URL is correctly set in .env')
+        console.warn('- Ensure your backend is running and deployed successfully on Render')
+        console.warn('- Verify that CORS is enabled on the backend for this origin')
       })
   }, [])
 
   return (
     <div className="min-h-screen">
       <Navbar />
-      
-      {/* Backend Connection Status Banner */}
-      {connectionStatus === 'success' && (
-        <div className="bg-green-100 text-green-800 p-2 text-center text-sm font-medium border-b border-green-200">
-          ✅ Backend Connected Successfully <br/>
-          <span className="font-normal text-green-700">Response: {backendMessage}</span>
-        </div>
-      )}
-      
-      {connectionStatus === 'error' && (
-        <div className="bg-red-100 text-red-800 p-2 text-center text-sm font-medium border-b border-red-200">
-          ❌ Backend Connection Failed <br/>
-          <span className="font-normal text-red-700">Check your API URL, CORS settings, or network connection.</span>
-        </div>
-      )}
-
       <Hero />
       <Categories />
       <Products />
